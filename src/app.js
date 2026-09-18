@@ -10,6 +10,9 @@ import swaggerUi from "swagger-ui-express";
 // Utilidad para leer y parsear archivos YAML (la especificación OpenAPI)
 import YAML from "yamljs";
 
+//Middleware para el manejo centralizado del error 500 y ruta no encontrada
+import {errorHandler, notFoundHandler} from "../src/middlewares/errorHandler.js";
+
 // Crea la instancia de la aplicación Express
 const app = express();
 
@@ -28,6 +31,13 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Monta el router principal con todas las rutas de la API
 app.use(router);
+
+// Manejador centralizado de errores 500.
+app.use(errorHandler);
+
+// Manejador de rutas no encontradas. 404
+app.use(notFoundHandler);
+
 
 // Se exporta la app (sin llamar a listen) para que pueda ser usada
 // tanto por el servidor real como por los tests con supertest.

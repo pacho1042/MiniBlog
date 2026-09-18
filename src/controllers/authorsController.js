@@ -95,7 +95,7 @@ export const getAuthorById = async (req, res) => {
  * - 409: el email ya se encuentra registrado.
  * - 500: error interno del servidor.
  */
-export const createAuthors = async (req, res) => {
+export const createAuthors = async (req, res, next) => {
     try {
 
         // Los datos del nuevo autor se obtienen del cuerpo de la petición.
@@ -137,20 +137,7 @@ export const createAuthors = async (req, res) => {
 
     } catch (error) {
 
-        console.error("Error Creando Autor", error);
-
-        // PostgreSQL utiliza el código 23505 para violaciones
-        // de restricciones UNIQUE, como un email duplicado.
-        if (error.code === "23505" && error.constraint.includes("email")) {
-            return res.status(409).json({
-                error: "El email ya está en uso"
-            });
-        }
-
-        // Error inesperado durante la creación del autor.
-        res.status(500).json({
-           error: "Error interno del servidor"
-        });
+        next(error);
     }
 };
 
