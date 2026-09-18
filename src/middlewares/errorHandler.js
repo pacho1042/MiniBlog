@@ -1,8 +1,17 @@
-// Middleware centralizado de manejo de errores 500.
+// Middleware centralizado de manejo de errores del servidor.
 export const errorHandler = (err, req, res, next) => {
 
     // Se registra el error completo para facilitar el diagnóstico en consola.
     console.error("Error en la aplicación:", err);
+
+    // PostgreSQL utiliza el código 23503 para violaciones
+    // de restricciones existencia de llave foranea.    
+    if (err.code === "23503") {
+            return res.status(400).json({
+                error: "El author_id no existe"
+            });
+        }
+
 
     // PostgreSQL utiliza el código 23505 para violaciones
         // de restricciones UNIQUE, como un email duplicado.
@@ -11,7 +20,6 @@ export const errorHandler = (err, req, res, next) => {
                 error: "El email ya está en uso"
             });
         }
-
 
     // Cualquier otro error no contemplado se trata como error interno.
     res.status(500).json({

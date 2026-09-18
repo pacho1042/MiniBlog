@@ -18,7 +18,7 @@ import {getAuthorByIdServices} from "../services/authorsServices.js";
  * - 200: posts obtenidos correctamente.
  * - 500: error interno del servidor.
  */
-export const getAllPosts = async (req, res) => {
+export const getAllPosts = async (req, res, next) => {
     try {
 
         // Se delega al servicio la consulta de los posts.
@@ -28,14 +28,7 @@ export const getAllPosts = async (req, res) => {
         res.status(200).json(resultado);
 
     } catch (error) {
-
-        // Se registra el error para facilitar su diagnóstico.
-        console.error("Error Obteniendo Posts", error);
-
-        // Error inesperado durante la consulta.
-        res.status(500).json({
-           error: "Error interno del servidor"
-        });
+        next(error);
     }
 };
 
@@ -55,7 +48,7 @@ export const getAllPosts = async (req, res) => {
  * - 404: autor no encontrado.
  * - 500: error interno del servidor.
  */
-export const getPostsById = async (req, res) => {
+export const getPostsById = async (req, res,next) => {
     try {
 
         // El ID se obtiene de los parámetros definidos en la ruta.
@@ -85,11 +78,7 @@ export const getPostsById = async (req, res) => {
 
     } catch (error) {
 
-        console.error("Error Obteniendo Post", error);
-
-        res.status(500).json({
-           error: "Error interno del servidor"
-        });
+       next(error);
     }
 };
 
@@ -120,7 +109,7 @@ export const getPostsById = async (req, res) => {
  * - 400: alguno de los datos no cumple las validaciones.
  * - 500: error interno del servidor.
  */
-export const createPost = async (req, res) => {
+export const createPost = async (req, res, next) => {
     try {
 
         // Los datos del nuevo post se reciben desde el cuerpo de la petición.
@@ -185,22 +174,7 @@ export const createPost = async (req, res) => {
 
     } catch (error) {
 
-        // PostgreSQL utiliza el código 23503 cuando se viola
-        // una restricción de clave foránea.
-        //
-        // En este caso significa que el author_id enviado
-        // no corresponde a un autor existente.
-        if (error.code === "23503") {
-            return res.status(400).json({
-                error: "El author_id no existe"
-            });
-        }
-
-        console.error("Error Creando Post", error);
-
-        res.status(500).json({
-           error: "Error interno del servidor"
-        });
+       next(error);
     }
 };
 
@@ -226,7 +200,7 @@ export const createPost = async (req, res) => {
  * - 404: post no encontrado.
  * - 500: error interno del servidor.
  */
-export const updatePost = async (req, res) => {
+export const updatePost = async (req, res, next) => {
     try {
 
         // El ID se obtiene de los parámetros definidos en la ruta.
@@ -295,19 +269,7 @@ export const updatePost = async (req, res) => {
 
     } catch (error) {
 
-        // Error de clave foránea:
-        // el author_id enviado no corresponde a un autor existente.
-        if (error.code === "23503") {
-            return res.status(400).json({
-                error: "El author_id no existe"
-            });
-        }
-
-        console.error("Error Actualizando Post", error);
-
-        res.status(500).json({
-           error: "Error interno del servidor"
-        });
+        next(error);
     }
 };
 
@@ -328,7 +290,7 @@ export const updatePost = async (req, res) => {
  * - 404: post no encontrado.
  * - 500: error interno del servidor.
  */
-export const deletePost = async (req, res) => {
+export const deletePost = async (req, res, next) => {
     try {
 
         // El ID se obtiene de los parámetros de la ruta.
@@ -365,11 +327,6 @@ export const deletePost = async (req, res) => {
         res.status(200).json(resultado);
 
     } catch (error) {
-
-        console.error("Error Eliminando Post", error);
-
-        res.status(500).json({
-           error: "Error interno del servidor"
-        });
+       next(error);
     }
 };

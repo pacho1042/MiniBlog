@@ -10,7 +10,7 @@ import { getAllAuthorsServices, getAuthorByIdServices,createAuthorsServices,dele
  * Error:
  * - 500: ocurre un error al consultar la base de datos.
  */
-export const getAllAuthors = async (req, res) => {
+export const getAllAuthors = async (req, res,next) => {
     try {
         // Consulta todos los autores y los ordena por fecha de creación en el servicio
         const resultado = await getAllAuthorsServices(); 
@@ -18,14 +18,7 @@ export const getAllAuthors = async (req, res) => {
         res.status(200).json(resultado);
 
     } catch (error) {
-
-        // Se registra el error en consola para facilitar su diagnóstico.
-        console.error("Error Obteniendo Autores", error);
-
-        // Error interno al realizar la consulta.
-        res.status(500).json({
-            error: "Error interno del servidor"
-        });
+        next(error);
     }
 };
 
@@ -41,7 +34,7 @@ export const getAllAuthors = async (req, res) => {
  * - 404: no existe un autor con ese ID.
  * - 500: error interno del servidor.
  */
-export const getAuthorById = async (req, res) => {
+export const getAuthorById = async (req, res,next) => {
     try {
 
         // El ID se obtiene directamente de los parámetros de la ruta.
@@ -70,11 +63,7 @@ export const getAuthorById = async (req, res) => {
 
     } catch (error) {
 
-        console.error("Error Obteniendo Autor", error);
-
-        res.status(500).json({
-           error: "Error interno del servidor"
-        });
+       next(error);
     }
 };
 
@@ -153,7 +142,7 @@ export const createAuthors = async (req, res, next) => {
  * - 404: autor no encontrado.
  * - 500: error interno del servidor.
  */
-export const deleteAuthors = async (req, res) => {
+export const deleteAuthors = async (req, res,next) => {
     try {
 
         // El ID se obtiene de los parámetros definidos en la ruta.
@@ -183,11 +172,7 @@ export const deleteAuthors = async (req, res) => {
 
     } catch (error) {
 
-        console.error("Error Eliminando Autor", error);
-
-        res.status(500).json({
-            error: "Error interno del servidor"
-        });
+        next(error);
     }
 };
 
@@ -209,7 +194,7 @@ export const deleteAuthors = async (req, res) => {
  * - 409: el nuevo email ya está registrado.
  * - 500: error interno del servidor.
  */
-export const updateAuthors = async (req, res) => {
+export const updateAuthors = async (req, res, next) => {
     try {
 
         // El ID se obtiene de los parámetros definidos en la ruta.
@@ -269,18 +254,6 @@ export const updateAuthors = async (req, res) => {
 
     } catch (error) {
 
-        console.error("Error Actualizando Autor", error);
-
-        // PostgreSQL utiliza 23505 cuando se intenta utilizar
-        // un email que ya pertenece a otro autor.
-        if (error.code === "23505" && error.constraint.includes("email")) {
-            return res.status(409).json({
-                error: "El email ya está en uso"
-            });
-        }
-
-        res.status(500).json({
-           error: "Error interno del servidor"
-        });
+        next(error);
     }
 };
