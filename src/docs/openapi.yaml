@@ -1,0 +1,673 @@
+openapi: 3.1.1
+
+info:
+  title: API MiniBlog
+  description: API REST para gestionar autores y publicaciones de un blog.
+  version: 1.0.0
+  contact:
+    name: Francisco Jose Delgado Ortega
+    email: pacho1042@gmial.com
+
+servers:
+  - url: http://localhost:3000/api
+    description: Servidor local
+  - url: http://localhost:3000/api
+    description: Servidor Railway
+
+tags:
+  - name: Autores
+    description: Operaciones relacionadas con los autores
+  - name: Posts
+    description: Operaciones relacionadas con las publicaciones
+
+paths:
+
+  # ==========================================================
+  # AUTORES
+  # ==========================================================
+
+  /authors:
+
+    get:
+      tags:
+        - Autores
+      summary: Obtener todos los autores
+      description: Retorna una lista con todos los autores registrados.
+      responses:
+        '200':
+          description: Lista de autores obtenida correctamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Author'
+
+        '500':
+          $ref: '#/components/responses/ErrorServidor'
+
+
+    post:
+      tags:
+        - Autores
+      summary: Crear un autor
+      description: Crea un nuevo autor.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorCreate'
+
+            example:
+              name: Gabriel García Márquez
+              email: gabriel@example.com
+              bio: Escritor colombiano.
+
+      responses:
+        '201':
+          description: Autor creado correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+
+        '400':
+          $ref: '#/components/responses/ErrorValidacion'
+
+        '409':
+          $ref: '#/components/responses/ErrorEmailEnUso'
+
+        '500':
+          $ref: '#/components/responses/ErrorServidor'
+
+
+    put:
+      tags:
+        - Autores
+      summary: Actualizar un autor
+      description: Actualiza la información de un autor existente.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorUpdate'
+
+            example:
+              id: 1
+              name: Gabriel García Márquez
+              email: gabriel@example.com
+              bio: Escritor colombiano y ganador del Premio Nobel.
+
+      responses:
+        '200':
+          description: Autor actualizado correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+
+        '400':
+          $ref: '#/components/responses/ErrorValidacion'
+
+        '404':
+          $ref: '#/components/responses/ErrorAutorNoEncontrado'
+
+        '409':
+          $ref: '#/components/responses/ErrorEmailEnUso'
+
+        '500':
+          $ref: '#/components/responses/ErrorServidor'
+
+
+  /authors/{id}:
+
+    get:
+      tags:
+        - Autores
+      summary: Obtener un autor por ID
+      description: Retorna la información de un autor específico.
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+
+      responses:
+        '200':
+          description: Autor encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+
+        '400':
+          $ref: '#/components/responses/ErrorValidacion'
+
+        '404':             
+          $ref: '#/components/responses/ErrorAutorNoEncontrado'
+
+        '500':
+          $ref: '#/components/responses/ErrorServidor'
+
+
+    delete:
+      tags:
+        - Autores
+      summary: Eliminar un autor
+      description: Elimina un autor por su ID.
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+
+      responses:
+        '200':
+          description: Autor eliminado correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+
+        '400':
+          $ref: '#/components/responses/ErrorValidacion'
+
+        '404':
+          $ref: '#/components/responses/ErrorAutorNoEncontrado'
+
+        '500':
+          $ref: '#/components/responses/ErrorServidor'
+
+
+  # ==========================================================
+  # POSTS
+  # ==========================================================
+
+  /posts:
+
+    get:
+      tags:
+        - Posts
+      summary: Obtener todos los posts
+      description: Retorna todos los posts junto con el nombre del autor.
+      responses:
+        '200':
+          description: Lista de posts obtenida correctamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+
+        '500':
+          $ref: '#/components/responses/ErrorServidor'
+
+
+    post:
+      tags:
+        - Posts
+      summary: Crear un post
+      description: Crea una nueva publicación.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostCreate'
+
+            example:
+              title: Mi primer post
+              author_id: 1
+              published: true
+
+      responses:
+        '201':
+          description: Post creado correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+        '400':
+          $ref: '#/components/responses/ErrorValidacionPost'                
+
+        '500':
+          $ref: '#/components/responses/ErrorServidor'
+
+
+    put:
+      tags:
+        - Posts
+      summary: Actualizar un post
+      description: Actualiza una publicación existente.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostUpdate'
+
+            example:
+              id: 1
+              title: Post actualizado
+              author_id: 1
+              published: true
+
+      responses:
+        '200':
+          description: Post actualizado correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+        '400':
+          $ref: '#/components/responses/ErrorValidacionPost'                
+
+
+        '404':
+         $ref: '#/components/responses/ErrorPostsNoEncontrado'
+
+        '500':
+          $ref: '#/components/responses/ErrorServidor'
+
+
+  /posts/{id}:
+
+    get:
+      tags:
+        - Posts
+      summary: Obtener los post de un autor por ID
+      description: Retorna los post específicos de un autor con el nombre del autor y el email
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+
+      responses:
+        '200':
+          description: Post encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostAutor'
+
+        '404':
+          $ref: '#/components/responses/ErrorAutorNoEncontrado'
+
+        '500':
+          $ref: '#/components/responses/ErrorServidor'
+
+
+    delete:
+      tags:
+        - Posts
+      summary: Eliminar un post
+      description: Elimina un post por su ID.
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+
+      responses:
+        '200':
+          description: Post eliminado correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+        '404':
+          $ref: '#/components/responses/ErrorPostsNoEncontrado'
+
+        '500':
+          $ref: '#/components/responses/ErrorServidor'
+
+
+# ==========================================================
+# COMPONENTES REUTILIZABLES
+# ==========================================================
+
+components:
+
+  # ========================================================
+  # SCHEMAS
+  # ========================================================
+
+  schemas:
+
+    Author:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+
+        name:
+          type: string
+          example: Gabriel García Márquez
+
+        email:
+          type: string
+          format: email
+          example: gabriel@example.com
+
+        bio:
+          type: string
+          nullable: true
+          example: Escritor colombiano.
+
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-09-08T12:00:00Z
+
+
+    AuthorCreate:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+
+        name:
+          type: string
+          example: Gabriel García Márquez
+
+        email:
+          type: string
+          format: email
+          example: gabriel@example.com
+
+        bio:
+          type: string
+          nullable: true
+          example: Escritor colombiano.
+
+
+    AuthorUpdate:
+      type: object
+      required:
+        - id
+        - name
+        - email
+      properties:
+
+        id:
+          type: integer
+          example: 1
+
+        name:
+          type: string
+          example: Gabriel García Márquez
+
+        email:
+          type: string
+          format: email
+          example: gabriel@example.com
+
+        bio:
+          type: string
+          nullable: true
+          example: Escritor colombiano.
+
+
+    Post:
+      type: object
+      properties:
+
+        id:
+          type: integer
+          example: 1
+
+        title:
+          type: string
+          example: Mi primer post
+
+        author_id:
+          type: integer
+          example: 1
+
+        author_name:
+          type: string
+          example: Gabriel García Márquez
+
+        published:
+          type: boolean
+          example: true
+
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-09-08T12:00:00Z
+
+
+    PostCreate:
+      type: object
+      required:
+        - title
+        - author_id
+      properties:
+
+        title:
+          type: string
+          example: Mi primer post
+
+        author_id:
+          type: integer
+          example: 1
+
+        published:
+          type: boolean
+          default: false
+          example: true
+
+
+    PostUpdate:
+      type: object
+      required:
+        - id
+        - title
+        - author_id
+      properties:
+
+        id:
+          type: integer
+          example: 1
+
+        title:
+          type: string
+          example: Post actualizado
+
+        author_id:
+          type: integer
+          example: 1
+
+        published:
+          type: boolean
+          default: false
+          example: true
+    
+    PostAutor:
+      type: object
+      properties:
+
+        id:
+          type: integer
+          example: 1
+
+        title:
+          type: string
+          example: Mi primer post
+
+        author_id:
+          type: integer
+          example: 1
+        published:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-09-08T12:00:00Z  
+        author_name:
+          type: string
+          example: Gabriel García Márquez
+        email:
+          type: string
+          example: Gabriel@gmai.com             
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Error Interno del Servidor
+
+
+  # ========================================================
+  # PARAMETERS
+  # ========================================================
+
+  parameters:
+
+    IdPath:
+      name: id
+      in: path
+      required: true
+      description: Identificador numérico del recurso.
+      schema:
+        type: integer
+        minimum: 1
+        example: 1
+
+
+  # ========================================================
+  # RESPONSES
+  # ========================================================
+
+  responses:
+
+    ErrorValidacion:
+      description: Los datos enviados no son válidos.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            namerequerido:
+              summary: El name es requerido
+              value:
+                error: "El nombre es requerido"
+            namesoloString:
+              summary: El name debe ser solo String
+              value:
+                error: "El nombre debe ser tipo String"
+            namesololetras:
+              summary: El nombre solo debe contener letras
+              value:
+                error: "El nombre solo debe contener letras"    
+            namextension:
+              summary: El name debe ser > 2 y < 100 caracteres
+              value:
+                error: "El nombre debe tener entre 2 y 100 caracteres"          
+                                    
+            emailInvalido:
+              summary: Email con estructura inválida
+              value:
+                error: "El formato del email es inválido"
+
+            emailFaltante:
+              summary: Email obligatorio
+              value:
+                error: "El email es requerido"
+            idvalido:
+              summary: id integer valido para proceso
+              value:
+                error: "El id debe ser un número entero válido"    
+            bioString:
+              summary: Bio String
+              value:
+                error: "La biografía debe ser tipo String" 
+            bioextension:
+              summary: Bio valida cuando exista
+              value:
+                error: "La biografía debe tener entre 2 y 200 caracteres"     
+  
+    ErrorValidacionPost:
+      description: Los datos enviados no son válidos.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            titlerequerido:
+              summary: El title es requerido
+              value:
+                error: "El titulo es requerido"
+            titlestring:
+              summary: El title debe ser tipo string
+              value:
+                error: "El titulo debe ser tipo String"
+            titlextension:
+              summary: El title debe ser > 2 y < 200 caracteres
+              value:
+                error: "El titulo debe tener entre 2 y 200 caracteres"          
+
+            idAutorvalido:
+              summary: idAutor integer valido para proceso
+              value:
+                error: "El id debe ser un número entero válido"    
+            
+            idvalido:
+              summary: id integer valido para proceso
+              value:
+                error: "El id debe ser un número valido"
+            
+            Published:
+              summary: Published si viaja debe ser true o false
+              value:
+                error: "El campo published debe ser true o false" 
+
+   
+
+    ErrorServidor:
+      description: Error interno del servidor.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Error interno del servidor
+    
+    ErrorEmailEnUso:
+      description: El email ya está en uso.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "El email ya está en uso"
+          example:
+            error: "El email ya está en uso"
+
+    ErrorAutorNoEncontrado: 
+      description: Autor no encontrado.
+      content:
+       application/json:
+          schema:
+          type: object
+          properties:
+             error:
+              type: string
+              example: "Autor no encontrado"
+          example:
+           error: "Autor no encontrado"
+
+    ErrorPostsNoEncontrado: 
+      description: Post no encontrado.
+      content:
+       application/json:
+          schema:
+          type: object
+          properties:
+             error:
+              type: string
+              example: "Post no encontrado"
+          example:
+           error: "Post no encontrado"                      
