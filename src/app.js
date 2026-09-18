@@ -32,7 +32,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Monta el router principal con todas las rutas de la API
 app.use(router);
 
-// Manejador centralizado de errores 500.
+// Manejador centralizado de errores del servidor.
 app.use(errorHandler);
 
 // Manejador de rutas no encontradas. 404
