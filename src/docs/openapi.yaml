@@ -11,7 +11,7 @@ info:
 servers:
   - url: http://localhost:3000/api
     description: Servidor local
-  - url: http://localhost:3000/api
+  - url: https://miniblog-production-b6e2.up.railway.app/
     description: Servidor Railway
 
 tags:
