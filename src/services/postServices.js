@@ -14,10 +14,27 @@ export async function getAllPostsServices() {
     return resultado.rows;
 }
 
+// Consulta un post específico utilizando su id.
+// Se utiliza $1 como parámetro para enviar el id de forma segura a PostgreSQL.
+export async function getPostsByIdServices(id) {
+        
+    const resultado = await pool.query(`
+        SELECT posts.*, authors.name AS author_name, authors.email AS email
+        FROM posts
+        INNER JOIN authors ON posts.author_id = authors.id
+        WHERE posts.id = $1
+    `, [id]);
+
+    // Retorna únicamente el post encontrado.
+// Si no existe, será undefined.
+    return resultado.rows[0];
+}
+
+
 
 // Consulta los posts de un autor específico utilizando su id.
 // Se utiliza $1 como parámetro para enviar el id de forma segura a PostgreSQL.
-export async function getPostsByIdServices(id) {
+export async function getPostsByIdAuthorServices(id) {
         
     const resultado = await pool.query(`
         SELECT posts.*, authors.name AS author_name, authors.email AS email
@@ -26,7 +43,7 @@ export async function getPostsByIdServices(id) {
         WHERE posts.author_id = $1
     `, [id]);
 
-    // Retorna únicamente el post encontrado.
+    // Retorna todos los post encontrados.
 // Si no existe, será undefined.
     return resultado.rows;
 }

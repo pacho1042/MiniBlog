@@ -1,4 +1,4 @@
-import { validarAutorId, validarBio, validarEmail, validarName } from "../../utils/validators.js";
+import { validarId, validarBio, validarEmail, validarName } from "../../utils/validators.js";
 import { getAllAuthorsServices, getAuthorByIdServices,createAuthorsServices,deleteAuthorsServices,updateAuthorsServices } from "../services/authorsServices.js";
 
 /**
@@ -41,7 +41,7 @@ export const getAuthorById = async (req, res,next) => {
         const { id } = req.params;
 
         // Se valida que el ID tenga un formato válido antes de consultar la BD.
-        const errorAutorId = validarAutorId(id);
+        const errorAutorId = validarId(id);
 
         if (errorAutorId) {
             return res.status(400).json({
@@ -149,7 +149,7 @@ export const deleteAuthors = async (req, res,next) => {
         const { id } = req.params;
 
         // Se valida el ID antes de ejecutar la operación DELETE.
-        const errorAutorId = validarAutorId(id);
+        const errorAutorId = validarId(id);
 
         if (errorAutorId) {
             return res.status(400).json({
@@ -204,7 +204,7 @@ export const updateAuthors = async (req, res, next) => {
         const {name, email, bio } = req.body;
 
         // Primero se valida el ID para garantizar que tenga un formato válido.
-        const errorAutorId = validarAutorId(id);
+        const errorAutorId = validarId(id);
 
         if (errorAutorId) {
             return res.status(400).json({

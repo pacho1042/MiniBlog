@@ -71,7 +71,7 @@ if (published !== undefined && typeof published !== "boolean") {
     return null;
 };
 
-export function validarAutorId(id){
+export function validarId(id){
 
     if (typeof id === "string" && id.trim().length === 0) {
         return "El id debe ser un número entero válido";

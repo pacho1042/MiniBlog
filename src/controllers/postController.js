@@ -1,5 +1,5 @@
-import {validarPublished,validarTitle,validarAutorId} from "../../utils/validators.js";
-import {getAllPostsServices,getPostsByIdServices,createPostServices, updatePostServices,deletePostService} from "../services/postServices.js";
+import {validarPublished,validarTitle,validarId} from "../../utils/validators.js";
+import {getAllPostsServices,getPostsByIdServices,getPostsByIdAuthorServices,createPostServices, updatePostServices,deletePostService} from "../services/postServices.js";
 import {getAuthorByIdServices} from "../services/authorsServices.js";
 
 // ============================================================
@@ -32,30 +32,74 @@ export const getAllPosts = async (req, res, next) => {
     }
 };
 
+/**
+ * Obtiene un post específico utilizando el ID recibido en la URL.
+ *
+ * Ejemplo:
+ * GET /posts/1
+ *
+ * Respuestas:
+ * - 200: posts encontrado.
+ * - 400: el ID no tiene un formato válido.
+ * - 404: no existe un posts con ese ID.
+ * - 500: error interno del servidor.   getPostsByIdServices
+ */
+export const getPostsById = async (req,res,next) => {
+    try {
+
+        // El ID se obtiene directamente de los parámetros de la ruta.
+        const { id } = req.params;
+
+        // Se valida que el ID tenga un formato válido antes de consultar la BD.
+        const errorPostId = validarId(id);
+
+        if (errorPostId) {
+            return res.status(400).json({
+                error: errorPostId
+            });
+        }
+        // Se utiliza usa una consulta en el servidor para obtener los posts por id
+        const resultado = await getPostsByIdServices(id);
+
+        // Si la consulta no retorna registros, el posts no existe.
+        if (!resultado) {
+            return res.status(404).json({
+                error: "Posts no encontrado"
+            });
+        }
+
+        // Retorna el posts encontrado.
+        res.status(200).json(resultado);
+
+    } catch (error) {
+
+       next(error);
+    }
+};
 
 // ============================================================
-// CONSULTAR UN POST POR ID
+// CONSULTAR TODOS LOS POST POR ID DE AUTOR
 // ============================================================
 
 /**
  * Obtiene los posts de un autors por el ID recibido en la URL.
  *
  * Ejemplo:
- * GET /posts/1
+ * GET /posts/author/1
  *
  * Respuestas:
  * - 200: autor encontrado.
  * - 404: autor no encontrado.
  * - 500: error interno del servidor.
  */
-export const getPostsById = async (req, res,next) => {
+export const getPostsByAuthorId = async (req, res,next) => {
     try {
 
         // El ID se obtiene de los parámetros definidos en la ruta.
-        const { id } = req.params;
+        const { authorId } = req.params;
 
         // Se utiliza usa una consulta en el servidor para obtener los autores por id
-        const autor = await getAuthorByIdServices(id);
+        const autor = await getAuthorByIdServices(authorId);
         
         // Si la consulta no retorna registros, el autor no existe.
         if (!autor) {
@@ -65,7 +109,7 @@ export const getPostsById = async (req, res,next) => {
         }
 
         // Se delega al servicio la consulta del post por ID, solo si el autors existe
-        const resultado = await getPostsByIdServices(id);
+        const resultado = await getPostsByIdAuthorServices(authorId);
 
         // Si no existen registros, el post no fue encontrado.
         if (resultado.length===0) {
@@ -136,7 +180,7 @@ export const createPost = async (req, res, next) => {
         // --------------------------------------------------------
 
         // Verifica que author_id tenga un formato válido.
-        const errorAutorId = validarAutorId(author_id);
+        const errorAutorId = validarId(author_id);
 
         if (errorAutorId) {
             return res.status(400).json({
@@ -225,7 +269,7 @@ export const updatePost = async (req, res, next) => {
 
 
         // Valida el ID del autor.
-        const errorAutorId = validarAutorId(author_id);
+        const errorAutorId = validarId(author_id);
 
         if (errorAutorId) {
             return res.status(400).json({
@@ -301,13 +345,14 @@ export const deletePost = async (req, res, next) => {
         // VALIDACIÓN DEL ID
         // --------------------------------------------------------
 
-        // Verifica que el ID exista y que sea un valor numérico.
-        if (!id || isNaN(id)) {
+        // Valida el ID 
+        const errorPostId = validarId(id);
+
+        if (errorPostId) {
             return res.status(400).json({
-                error: "El id debe ser un número válido"
+                error: errorPostId
             });
         }
-
 
         // --------------------------------------------------------
         // ELIMINACIÓN DEL POST

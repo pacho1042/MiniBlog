@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { validarAutorId, validarBio, validarEmail, validarName, validarPublished, validarTitle } from "../utils/validators";
+import { validarId, validarBio, validarEmail, validarName, validarPublished, validarTitle } from "../utils/validators";
 
 //TEST validar el email
 describe("validarEmail",()=>{
@@ -75,19 +75,19 @@ describe ("validarPublicidad",()=>{
     });
 });
 
-//validar autor id
-describe ("valdiarAutorId",()=>{
+//validar id
+describe ("valdiarId",()=>{
    test("tipo de dato de id valido",()=>{
-    expect(validarAutorId(12)).toBe(null);
+    expect(validarId(12)).toBe(null);
    });
    test("tipo de dato de id decimal",()=>{
-    expect(validarAutorId(0,2)).toContain("entero");
+    expect(validarId(0,2)).toContain("entero");
    });
    test("tipo de dato de id indefinido",()=>{
-    expect(validarAutorId(undefined)).toContain("entero");
+    expect(validarId(undefined)).toContain("entero");
    });
    test("tipo de dato de id vacio",()=>{
-    expect(validarAutorId("   ")).toContain("entero");
+    expect(validarId("   ")).toContain("entero");
    });
 
 });

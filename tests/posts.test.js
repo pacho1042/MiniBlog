@@ -35,8 +35,33 @@ describe("GET /posts", () => {
 });
 
 describe("GET /posts/:id", () => {
-    test("devuelve los posts de un autor existente", async () => {
+    test("devuelve un post existente", async () => {
         const response = await request(app).get("/posts/1");
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toHaveProperty("id", 1);
+        expect(response.body).toHaveProperty("title");
+        expect(response.body).toHaveProperty("published");
+    });
+
+    test("devuelve 404 si el posts no existe", async () => {
+        const response = await request(app).get("/posts/9999");
+
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toHaveProperty("error");
+    });
+
+    test("devuelve 400 si el id no es numérico", async () => {
+        const response = await request(app).get("/posts/abc");
+
+        expect(response.statusCode).toBe(400);
+        expect(response.body).toHaveProperty("error");
+    });
+});
+
+describe("GET /posts/author/:authorId", () => {
+    test("devuelve los posts de un autor existente", async () => {
+        const response = await request(app).get("/posts/author/1");
 
          expect(response.statusCode).toBe(200);
          expect(response.body).toHaveLength(2);
@@ -49,14 +74,14 @@ describe("GET /posts/:id", () => {
     });
 
     test("devuelve una lista vacía si el autor no tiene posts", async () => {
-    const response = await request(app).get("/posts/2");
+    const response = await request(app).get("/posts/author/2");
 
     expect(response.statusCode).toBe(200);
     expect(response.body).toEqual({error: "Autor existe pero aun no tiene posts registrados"});
     });
 
     test("devuelve 404 si el post no existe", async () => {
-        const response = await request(app).get("/posts/9999");
+        const response = await request(app).get("/posts/author/9999");
 
         expect(response.statusCode).toBe(404);
         expect(response.body).toHaveProperty("error");
