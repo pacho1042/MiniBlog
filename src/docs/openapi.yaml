@@ -268,8 +268,34 @@ paths:
         '500':
           $ref: '#/components/responses/ErrorServidor'
 
-
   /posts/{id}:
+
+    get:
+      tags:
+        - Posts
+      summary: Obtener un posts por ID
+      description: Retorna la información de un posts específico.
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+
+      responses:
+        '200':
+          description: Posts encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+        '400':
+          $ref: '#/components/responses/ErrorValidacion'
+
+        '404':             
+          $ref: '#/components/responses/ErrorPostsNoEncontrado'
+
+        '500':
+          $ref: '#/components/responses/ErrorServidor'
+ 
+  /posts/author/{authorId}:
 
     get:
       tags:
@@ -509,7 +535,7 @@ components:
         email:
           type: string
           example: Gabriel@gmai.com             
-
+            
     Error:
       type: object
       properties:

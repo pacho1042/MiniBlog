@@ -26,7 +26,7 @@ export const getAllAuthors = async (req, res,next) => {
  * Obtiene un autor específico utilizando el ID recibido en la URL.
  *
  * Ejemplo:
- * GET /api/authors/1
+ * GET /authors/1
  *
  * Respuestas:
  * - 200: autor encontrado.
@@ -134,7 +134,7 @@ export const createAuthors = async (req, res, next) => {
  * Elimina un autor utilizando el ID recibido en la URL.
  *
  * Ejemplo:
- * DELETE /api/authors/1
+ * DELETE /authors/1
  *
  * Respuestas:
  * - 200: autor eliminado.
