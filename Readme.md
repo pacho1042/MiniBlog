@@ -190,9 +190,6 @@ Ingresar a la carpeta:
 ```bash
 cd MiniBlog
 ```
-
-> Reemplazar `https://github.com/pacho1042/MiniBlog.git` por la URL mencionada correspondiente al repositorio de GitHub.
-
 ---
 
 # 7. Instalar las dependencias
@@ -632,7 +629,7 @@ Entre las validaciones realizadas se encuentran:
 * Nombre del autor.
 * Email.
 * Biografía.
-* ID del autor.
+* ID.
 * Título del post.
 * Estado `published`.
 
@@ -805,6 +802,8 @@ PostgreSQL
 
 Railway puede desplegar directamente un repositorio de GitHub y detectar una aplicación Node.js. También permite configurar las variables de entorno desde el servicio desplegado.
 
+## [Abrir MANUAL despliegue en Railway](https://docs.google.com/document/d/1dl5cs-dW1kxK0EzZ3dRztgQEpYwJ3NEF5Rk3dSet2Rs/edit?usp=sharing)
+
 ---
 
 # 24. Configuración de variables en Railway
@@ -838,7 +837,7 @@ La aplicación se encuentra desplegada en Railway:
 
 **MiniBlog API**
 
-[Abrir API desplegada en Railway](https://miniblog-production-b6e2.up.railway.app/?utm_source=chatgpt.com)
+[Abrir API desplegada en Railway](https://miniblog-production-b6e2.up.railway.app/posts/)
 
 URL base:
 
@@ -979,10 +978,247 @@ Los principales conceptos practicados fueron:
 * Despliegue de una API Node.js.
 * Integración con PostgreSQL.
 * Verificación de una API mediante una URL pública.
+---
+
+# 29. Aporte de IA Claude
+
+## Prompt 1 — Estructura inicial del proyecto
+
+### Prompt:
+
+Estoy desarrollando un proyecto llamado MiniBlog con Node.js y Express. Quiero crear una API REST para gestionar autores y publicaciones. Ayúdame a definir una estructura de carpetas adecuada separando rutas, controladores, servicios, conexión a base de datos, middleware y utilidades. Explícame qué responsabilidad debe tener cada carpeta y archivo y dame un ejemplo de estructura inicial del proyecto.
+
+### ¿En qué me ayudó?
+
+* Me permitió definir una estructura organizada para el proyecto, separando las diferentes responsabilidades de la aplicación.
+
+* La estructura propuesta permitió trabajar con:
+
+* controllers/ para manejar las peticiones HTTP.
+routes/ para definir los endpoints.
+* services/ para manejar la lógica relacionada con la base de datos.
+db/ para la configuración de PostgreSQL.
+* middleware/ para funcionalidades intermedias.
+* utils/ para validaciones y funciones reutilizables.
+docs/ para la documentación OpenAPI.
+
+#### Resultado:
+Se obtuvo una arquitectura más organizada y fácil de mantener, evitando colocar toda la lógica de la aplicación en un único archivo.
+
+## Prompt 2 — Creación de endpoints REST
+
+### Prompt:
+
+Estoy desarrollando una API REST con Express para un MiniBlog. Tengo dos entidades: authors y posts. Necesito crear endpoints para consultar, crear, actualizar y eliminar autores y publicaciones. Explícame paso a paso cómo definir las rutas, qué debe recibir cada endpoint y cómo conectar las rutas con los controladores. Quiero utilizar ES Modules con import/export.
+
+### ¿En qué me ayudó?
+
+* Me permitió comprender cómo funcionan las rutas de Express y cómo se conectan con los controladores.
+
+Se trabajó con endpoints como:
+
+* GET para consultar información.
+* POST para crear registros.
+* PUT para actualizar registros.
+* DELETE para eliminar registros.
+
+También permitió comprender la diferencia entre:
+
+* Ruta → Controlador → Servicio → Base de datos
+
+### Resultado:
+Se construyeron los endpoints principales de autores y publicaciones utilizando Express.
+
+## Prompt 3 — Conexión de PostgreSQL mediante Pool
+
+### Prompt:
+
+Estoy trabajando con Node.js, Express y PostgreSQL. Quiero conectar mi aplicación MiniBlog a PostgreSQL utilizando el módulo pg y un Pool de conexiones. Explícame como principiante qué es un Pool, por qué se utiliza y cómo debo configurar la conexión utilizando variables de entorno con dotenv. Muéstrame cómo ejecutar consultas desde los servicios.
+
+### ¿En qué me ayudó?
+
+Me permitió comprender cómo conectar Node.js con PostgreSQL utilizando:
+
+* pg
+* Pool
+* dotenv
+* Variables de entorno.
+
+También permitió separar la configuración de la base de datos en:
+
+* src/db/config.js Y utilizar el Pool desde los servicios.
+
+Por ejemplo, se trabajó con consultas como:
+
+* const resultado = await pool.query(
+    "SELECT * FROM authors"
+);
+
+### Resultado:
+La aplicación quedó conectada a PostgreSQL y los servicios pudieron realizar operaciones directamente sobre la base de datos.
+
+## Prompt 4 — Diseño de la base de datos
+
+### Prompt:
+
+Ayúdame a diseñar la base de datos PostgreSQL para un MiniBlog que tenga las tablas authors y posts. Un autor puede tener muchos posts y cada post pertenece a un autor. Necesito que me expliques las claves primarias, claves foráneas, restricciones y relación entre las tablas. También quiero crear un archivo setup.sql para crear la estructura y un seed.sql para insertar datos iniciales.
+
+### ¿En qué me ayudó?
+
+Permitió diseñar la estructura de la base de datos y comprender la relación entre autores y publicaciones.
+
+Se definieron:
+```text
+authors
+   │
+   │ 1:N
+   │
+posts
+```
+La tabla posts utiliza:
+```sql
+author_id INTEGER NOT NULL
+```
+como clave foránea hacia:
+```sql
+authors(id)
+```
+También se configuró:
+```sql
+ON DELETE CASCADE
+```
+para manejar la eliminación de registros relacionados.
+
+### Resultado:
+Se crearon los archivos:
+
+* setup.sql
+* seed.sql
+
+El primero contiene la estructura de la base de datos y el segundo permite cargar información inicial.
+
+## Prompt 5 — Separación entre Controllers y Services
+
+### Prompt:
+
+Tengo una API Express donde actualmente algunas consultas a PostgreSQL están directamente dentro de los controladores. Quiero separar responsabilidades utilizando controllers y services. Explícame qué debe hacer cada uno y ayúdame a convertir las consultas SQL en funciones dentro de services, haciendo que el controller se encargue únicamente de recibir la petición, validar información y devolver la respuesta HTTP.
+
+### ¿En qué me ayudó?
+
+* Me ayudó a comprender el principio de separación de responsabilidades.
+
+* La arquitectura quedó organizada de esta manera:
+```text
+Request
+   ↓
+Route
+   ↓
+Controller
+   ↓
+Service
+   ↓
+PostgreSQL
+```
+
+Los servicios quedaron encargados de ejecutar las consultas SQL, mientras que los controladores manejan:
+
+* req
+* res
+* códigos HTTP errores respuestas al cliente.
+
+### Resultado:
+El código quedó más modular y permitió reutilizar los servicios desde diferentes controladores.
+
+## Prompt 6 — Validaciones y manejo de errores
+
+### Prompt:
+
+Estoy desarrollando una API REST con Express y necesito validar los datos recibidos para crear y actualizar autores y posts. Quiero utilizar funciones de validación separadas y middleware para manejar errores. Explícame cómo validar campos como title, author_id, email y published, cómo responder con códigos HTTP adecuados y cómo manejar errores de PostgreSQL como un email duplicado.
+
+### ¿En qué me ayudó?
+
+* Permitió implementar validaciones para evitar que llegaran datos incorrectos a la base de datos.
+
+También permitió trabajar con códigos HTTP como:
+
+* 200 → Operación exitosa
+* 201 → Registro creado
+* 400 → Datos incorrectos
+* 404 → Recurso no encontrado
+* 409 → Conflicto
+* 500 → Error interno
+
+Además, se trabajó el manejo específico del error de PostgreSQL relacionado con registros duplicados.
+
+### Resultado:
+La API comenzó a responder de manera más controlada ante datos inválidos y errores del servidor.
+
+## Prompt 7 — Consultas SQL con INNER JOIN
+
+### Prompt:
+
+Explícame como principiante cómo funciona INNER JOIN en PostgreSQL utilizando las tablas authors y posts de mi proyecto MiniBlog. Quiero realizar una consulta que permita obtener los posts pertenecientes a un autor y mostrar también el nombre y email del autor. Explícame qué sucede cuando el autor existe pero no tiene posts y qué sucede cuando el autor no existe.
+
+### ¿En qué me ayudó?
+
+Permitió comprender cómo relacionar información de varias tablas mediante SQL.
+
+Se trabajó una consulta similar a:
+```sql 
+SELECT posts.*,
+       authors.name AS author_name,
+       authors.email AS email
+FROM posts
+INNER JOIN authors ON posts.author_id = authors.id
+WHERE posts.author_id = $1;
+```
+También se identificó una situación importante:
+
+Un INNER JOIN por sí solo puede devolver [] tanto cuando:
+
+* el autor no existe;
+* el autor existe pero no tiene publicaciones.
+
+Por esta razón se separó la validación de existencia del autor de la consulta de sus publicaciones.
+
+### Resultado:
+Se logró diferenciar correctamente entre:
+
+* 404 → Autor no encontrado
+* 200 [] → Autor existe pero no tiene posts
+* 200 [posts] → Autor existe y tiene posts
+
+## Prompt 8 — Pruebas automatizadas con Vitest y Supertest
+
+### Prompt:
+
+Quiero agregar pruebas automatizadas a mi API MiniBlog utilizando Vitest y Supertest. Explícame como principiante qué diferencia hay entre Vitest y Supertest, cómo probar endpoints de Express y cómo organizar las pruebas para verificar respuestas HTTP, códigos de estado y contenido JSON.
+
+### ¿En qué me ayudó?
+
+Permitió incorporar pruebas automatizadas al proyecto.
+
+Se utilizaron:
+
+Vitest para ejecutar las pruebas.
+Supertest para realizar peticiones HTTP contra la aplicación.
+
+También se trabajó con scripts como:
+
+* npm test
+
+y:
+
+* npm run test:coverage
+
+Las pruebas permitieron verificar que los endpoints respondieran correctamente.
+
+### Resultado:
+El proyecto incorporó una estrategia básica de pruebas automatizadas para comprobar el funcionamiento de la API.
 
 ---
 
-# 29. Conclusión
+# 30. Conclusión
 
 MiniBlog fue desarrollado como un proyecto práctico para integrar diferentes conceptos del desarrollo backend.
 
