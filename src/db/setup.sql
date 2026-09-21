@@ -4,10 +4,10 @@
 
 -- Si la base de datos ya existe, la elimina.
 -- Esto permite ejecutar nuevamente este archivo desde cero.
-DROP DATABASE IF EXISTS miniblog;
+DROP DATABASE IF EXISTS miniBlog;
 
 -- Crea la base de datos.
-CREATE DATABASE miniblog;
+CREATE DATABASE miniBlog;
 
 
 -- ============================================================

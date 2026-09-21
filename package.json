@@ -1,7 +1,7 @@
 {
   "name": "miniblog",
   "version": "1.0.0",
-  "description": "",
+  "description": "Proyecto practico API Henry",
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -10,7 +10,7 @@
     "test:coverage": "vitest --coverage"
   },
   "keywords": [],
-  "author": "",
+  "author": "https://github.com/pacho1042",
   "license": "ISC",
   "type": "module",
   "dependencies": {
